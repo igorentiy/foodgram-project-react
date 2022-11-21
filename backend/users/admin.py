@@ -1,17 +1,12 @@
 from django.contrib import admin
+from django.contrib.admin import register
+from django.contrib.auth.admin import UserAdmin
 
-from .models import User
+from .models import Follow, User
 
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = (
-        "pk",
-        "username",
-        "email",
-        "first_name",
-        "last_name",
-    )
+@register(User)
+class MyUserAdmin(UserAdmin):
     search_fields = (
         "username",
         "email",
@@ -22,4 +17,6 @@ class UserAdmin(admin.ModelAdmin):
         "email",
         "first_name",
     )
-    empty_value_display = "-пусто-"
+
+
+admin.site.register(Follow)

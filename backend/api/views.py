@@ -1,26 +1,12 @@
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from recipes.models import (
-    FavoriteRecipe,
-    Ingredient,
-    Recipe,
-    ShoppingCart,
-    Tag,
-)
 from rest_framework import status, viewsets
-from rest_framework.authtoken.models import Token
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import (
-    SAFE_METHODS,
-    AllowAny,
-    IsAuthenticated,
-    IsAuthenticatedOrReadOnly,
-)
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import Follow, User
 
 from .filters import RecipeFilter
 from .permissions import IsOwnerOrReadOnly
@@ -30,9 +16,17 @@ from .serializers import (
     IngredientSerializer,
     RecipesCreateSerializer,
     RecipesListSerializer,
-    SetUserPasswordSerializer,
     TagSerializer,
     UserSerializer,
+)
+from users.models import Follow, User
+from recipes.models import (
+    AmountIngredient,
+    FavoriteRecipe,
+    Ingredient,
+    Recipe,
+    ShoppingCart,
+    Tag,
 )
 
 
@@ -46,20 +40,6 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     filter_backends = (SearchFilter,)
     search_fields = ("^name",)
-
-
-# class ObtainToken(APIView):
-#     serializer_class = ObtainTokenSerializer
-#     permission_classes = (AllowAny,)
-
-#     def post(self, request, *args, **kwargs):
-#         serializer = ObtainTokenSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.data["user"]
-#         token, created = Token.objects.get_or_create(user=user)
-#         return Response(
-#             {"auth_token": token.key}, status=status.HTTP_201_CREATED
-#         )
 
 
 class UsersViewSet(UserViewSet):
@@ -113,23 +93,6 @@ class UsersViewSet(UserViewSet):
                 )
 
 
-# @api_view(["post"])
-# def set_password(request):
-#     serializer = SetUserPasswordSerializer(
-#         data=request.data, context={"request": request}
-#     )
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(
-#             {"message": "Пароль успешно изменен"},
-#             status=status.HTTP_201_CREATED,
-#         )
-#     return Response(
-#         {"message": "Пароль введён неверно"},
-#         status=status.HTTP_400_BAD_REQUEST,
-#     )
-
-
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     filter_class = RecipeFilter
@@ -146,6 +109,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(
         methods=["POST", "DELETE"],
         detail=True,
+        permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, pk):
         recipe_pk = self.kwargs.get("pk")
@@ -194,3 +158,33 @@ class RecipesViewSet(viewsets.ModelViewSet):
                     {"errors": "Рецепт отсутсвует в списке покупок"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+
+    @action(
+        methods=["GET"], detail=False, permission_classes=(IsAuthenticated,)
+    )
+    def download_shopping_cart(self, request):
+        ingredients = AmountIngredient.objects.select_related(
+            "recipe", "ingredient"
+        )
+        ingredients = ingredients.filter(
+            recipe__shopping_cart_recipe__user=request.user
+        )
+        ingredients = ingredients.values(
+            "ingredient__name", "ingredient__measurement_unit"
+        )
+        ingredients = ingredients.annotate(ingredient_total=Sum("amount"))
+        ingredients = ingredients.order_by("ingredient__name")
+        shopping_list = "Список покупок: \n"
+        for ingredient in ingredients:
+            shopping_list += (
+                f'{ingredient["ingredient__name"]} - '
+                f'{ingredient["ingredient_total"]} '
+                f'({ingredient["ingredient__measurement_unit"]}) \n'
+            )
+            response = HttpResponse(
+                shopping_list, content_type="text/plain; charset=utf8"
+            )
+            response[
+                "Content-Disposition"
+            ] = 'attachment; filename="shopping_list.txt"'
+            return response
