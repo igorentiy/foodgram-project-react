@@ -11,7 +11,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.7.9
 
     - name: Install dependencies
       run: | 
@@ -21,8 +21,7 @@ jobs:
     - name: Test with flake8
       run: |
         python -m flake8
-
-build_and_push_to_docker_hub:
+  build_and_push_to_docker_hub:
         name: Push Docker image to Docker Hub
         runs-on: ubuntu-latest
         needs: tests
@@ -42,13 +41,13 @@ build_and_push_to_docker_hub:
             with:
               context: backend/
               push: true
-              tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
+              tags: igorentiy91/foodgram_backend:latest
           - name: Push frontend
             uses: docker/build-push-action@v2 
             with:
               context: frontend/
               push: true
-              tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+              tags: igorentiy91/foodgram_frontend:latest
 
   deploy:
       runs-on: ubuntu-latest
@@ -63,8 +62,8 @@ build_and_push_to_docker_hub:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+            sudo docker pull igorentiy91/foodgram_backend:latest
+            sudo docker pull igorentiy91/foodgram_frontend:latest
             sudo docker-compose stop
             sudo docker-compose rm backend
             sudo rm .env
