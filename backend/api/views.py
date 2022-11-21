@@ -12,6 +12,8 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from djoser.views import UserViewSet
 from rest_framework.decorators import api_view
+from rest_framework.filters import SearchFilter
+from .filters import RecipeFilter
 
 
 from .serializers import (
@@ -42,6 +44,8 @@ class TagsViewSet(viewsets.ModelViewSet):
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    filter_backends = (SearchFilter,)
+    search_fields = ("^name",)
 
 
 # class ObtainToken(APIView):
@@ -129,6 +133,7 @@ class UsersViewSet(UserViewSet):
 
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
+    filter_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
