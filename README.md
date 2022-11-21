@@ -1,5 +1,6 @@
 # FoodGram
 ![https://github.com/igorentiy91](https://img.shields.io/badge/Developed%20by-igorentiy91-blue)
+![Yamdb Workflow Status](https://github.com/igorentiy91/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg?branch=master&event=push)
 ## Запуск проекта в dev-режиме
 
 - Установить и активировать виртуальное окружение
