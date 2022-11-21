@@ -185,7 +185,37 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = "__all__"
-        read_only_fields = "author"
+        read_only_fields = ("author",)
+
+    def create_amount_ingredients(self, ingredients, recipe):
+        for ingredient in ingredients:
+            AmountIngredient.objects.create(
+                recipe=recipe,
+                ingredient=ingredient.get("id"),
+                amount=ingredient.get("amount"),
+            )
+
+    def create(self, validated_data):
+        ingredients = validated_data.pop("ingredients")
+        tags = validated_data.pop("tags")
+        recipe = Recipe.objects.create(**validated_data)
+        recipe.tags.set(tags)
+        self.create_amount_ingredients(ingredients, recipe)
+        return recipe
+
+    def update(self, obj, validated_data):
+        if "ingredients" in validated_data:
+            ingredients = validated_data.pop("ingredients")
+            obj.ingredients.clear()
+            self.create_amount_ingredients(ingredients, obj)
+        if "tags" in validated_data:
+            tags = validated_data.pop("tags")
+            obj.tags.set(tags)
+        return super().update(obj, validated_data)
+
+    def to_representation(self, instance):
+        serializer = RecipesListSerializer(instance)
+        return serializer.data
 
 
 class FavoriteOrShoppingRecipeSerializer(serializers.ModelSerializer):
