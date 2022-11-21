@@ -22,6 +22,7 @@ from .serializers import (
     RecipesCreateSerializer,
     FavoriteOrShoppingRecipeSerializer,
     IngredientSerializer,
+    FollowSerializer,
 )
 from recipes.models import (
     Tag,
@@ -30,7 +31,7 @@ from recipes.models import (
     ShoppingCart,
     Ingredient,
 )
-from users.models import User
+from users.models import User, Follow
 
 
 class TagsViewSet(viewsets.ModelViewSet):
@@ -60,6 +61,53 @@ class IngredientsViewSet(viewsets.ModelViewSet):
 class UsersViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    @action(
+        methods=["GET"],
+        detail=False,
+    )
+    def subscriptions(self, request):
+        user = self.request.user
+        queryset = Follow.objects.filter(user=user)
+        page = self.paginate_queryset(queryset)
+        serializer = FollowSerializer(
+            page, many=True, context={"request": request}
+        )
+        return self.get_paginated_response(serializer.data)
+
+    @action(
+        methods=["POST", "DELETE"],
+        detail=True,
+    )
+    def subscribe(self, request, id):
+        author = get_object_or_404(User, id=id)
+        if request.method == "POST":
+            if request.user.id == author.id:
+                return Response(
+                    {"errors": "Вы не можете подписаться на свой аккаунт"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            else:
+                serializer = FollowSerializer(
+                    Follow.objects.create(user=request.user, author=author),
+                    context={"request": request},
+                )
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED
+                )
+        elif request.method == "DELETE":
+            if Follow.objects.filter(
+                user=request.user, author=author
+            ).exists():
+                Follow.objects.filter(
+                    user=request.user, author=author
+                ).delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response(
+                    {"errors": "Автор отсутсвует в списке подписок"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
 
 # @api_view(["post"])
