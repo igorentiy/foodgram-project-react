@@ -1,39 +1,38 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
-from rest_framework.decorators import action
-
-# from .serializers import ObtainTokenSerializer
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, SAFE_METHODS
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.authtoken.models import Token
 from djoser.views import UserViewSet
-from rest_framework.decorators import api_view
+from recipes.models import (
+    FavoriteRecipe,
+    Ingredient,
+    Recipe,
+    ShoppingCart,
+    Tag,
+)
+from rest_framework import status, viewsets
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import action, api_view
 from rest_framework.filters import SearchFilter
+from rest_framework.permissions import (
+    SAFE_METHODS,
+    AllowAny,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from users.models import Follow, User
+
 from .filters import RecipeFilter
-
-
 from .serializers import (
+    FavoriteOrShoppingRecipeSerializer,
+    FollowSerializer,
+    IngredientSerializer,
+    RecipesCreateSerializer,
+    RecipesListSerializer,
+    SetUserPasswordSerializer,
     TagSerializer,
     UserSerializer,
-    SetUserPasswordSerializer,
-    RecipesListSerializer,
-    RecipesCreateSerializer,
-    FavoriteOrShoppingRecipeSerializer,
-    IngredientSerializer,
-    FollowSerializer,
 )
-from recipes.models import (
-    Tag,
-    Recipe,
-    FavoriteRecipe,
-    ShoppingCart,
-    Ingredient,
-)
-from users.models import User, Follow
 
 
 class TagsViewSet(viewsets.ModelViewSet):
@@ -55,7 +54,7 @@ class IngredientsViewSet(viewsets.ModelViewSet):
 #     def post(self, request, *args, **kwargs):
 #         serializer = ObtainTokenSerializer(data=request.data)
 #         serializer.is_valid(raise_exception=True)
-#         user = serializer.validated_data["user"]
+#         user = serializer.data["user"]
 #         token, created = Token.objects.get_or_create(user=user)
 #         return Response(
 #             {"auth_token": token.key}, status=status.HTTP_201_CREATED
@@ -67,8 +66,7 @@ class UsersViewSet(UserViewSet):
     serializer_class = UserSerializer
 
     @action(
-        methods=["GET"],
-        detail=False,
+        methods=["GET"], detail=False, permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
         user = self.request.user
@@ -147,7 +145,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         methods=["POST", "DELETE"],
         detail=True,
     )
-    def favorite(self, request, pk=None):
+    def favorite(self, request, pk):
         recipe_pk = self.kwargs.get("pk")
         recipe = get_object_or_404(Recipe, pk=recipe_pk)
         if request.method == "POST":
@@ -174,7 +172,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         methods=["POST", "DELETE"],
         detail=True,
     )
-    def shopping_cart(self, request, pk=None):
+    def shopping_cart(self, request, pk):
         recipe_pk = self.kwargs.get("pk")
         recipe = get_object_or_404(Recipe, pk=recipe_pk)
         if request.method == "POST":

@@ -1,6 +1,6 @@
+from django.core import validators
 from django.db import models
 from users.models import User
-from django.core import validators
 
 ORANGE = "#E26C2D"
 GREEN = "#49B64E"

@@ -1,20 +1,24 @@
-﻿from django.shortcuts import get_object_or_404
-from rest_framework import serializers
-from recipes.models import (
-    Tag,
-    Recipe,
-    FavoriteRecipe,
-    ShoppingCart,
-    Ingredient,
-)
+﻿import django.contrib.auth.password_validation as validators
 from django.contrib.auth import authenticate
-from users.models import User, Follow
-from djoser.serializers import CurrentPasswordSerializer, PasswordSerializer
 from django.contrib.auth.hashers import make_password
-import django.contrib.auth.password_validation as validators
-from recipes.models import AmountIngredient
+from django.shortcuts import get_object_or_404
+from djoser.serializers import (
+    CurrentPasswordSerializer,
+    PasswordSerializer,
+    TokenCreateSerializer,
+)
 from drf_base64.fields import Base64ImageField
+from recipes.models import (
+    AmountIngredient,
+    FavoriteRecipe,
+    Ingredient,
+    Recipe,
+    ShoppingCart,
+    Tag,
+)
+from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+from users.models import Follow, User
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -34,7 +38,9 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "measurement_unit")
 
 
-# class ObtainTokenSerializer(serializers.Serializer):
+# class ObtainTokenSerializer(TokenCreateSerializer):
+#     pass
+
 
 #     email = serializers.EmailField(max_length=254, required=True)
 #     password = serializers.CharField(required=True)
@@ -43,25 +49,25 @@ class IngredientSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         fields = ("password", "email")
 
-#     def validate(self, attrs):
-#         email = attrs.get("email")
-#         password = attrs.get("password")
-#         if email and password:
-#             user = authenticate(
-#                 request=self.context.get("request"),
-#                 email=email,
-#                 password=password,
-#             )
-#             if not user:
-#                 raise serializers.ValidationError(
-#                     "Проверте электронную почту и пароль"
-#                 )
-#         else:
+# def validate(self, attrs):
+#     email = attrs.get("email")
+#     password = attrs.get("password")
+#     if email and password:
+#         user = authenticate(
+#             request=self.context.get("request"),
+#             email=email,
+#             password=password,
+#         )
+#         if not user:
 #             raise serializers.ValidationError(
-#                 "Введите электронную почту и пароль"
+#                 "Проверьте электронную почту и пароль"
 #             )
-#         attrs["user"] = user
-#         return attrs
+#     else:
+#         raise serializers.ValidationError(
+#             "Введите электронную почту и пароль"
+#         )
+#     attrs["user"] = user
+#     return attrs
 
 
 class UserSerializer(serializers.ModelSerializer):
