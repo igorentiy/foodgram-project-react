@@ -67,7 +67,7 @@ DATABASES = {
     }
 }
 
-#DATABASES = {
+# DATABASES = {
 #    "default": {
 #        "ENGINE": os.getenv(
 #            "DB_ENGINE", default="django.db.backends.postgresql"
@@ -78,7 +78,7 @@ DATABASES = {
 #        "HOST": os.getenv("DB_HOST", default="db"),
 #        "PORT": os.getenv("DB_PORT", default=5432),
 #    }
-#}
+# }
 
 
 AUTH_PASSWORD_VALIDATORS = [
