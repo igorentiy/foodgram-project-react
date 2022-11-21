@@ -3,10 +3,8 @@ from rest_framework import serializers
 
 from recipes.models import (
     AmountIngredient,
-    FavoriteRecipe,
     Ingredient,
     Recipe,
-    ShoppingCart,
     Tag,
 )
 from users.models import Follow, User
@@ -88,8 +86,8 @@ class RecipesListSerializer(serializers.ModelSerializer):
     ingredients = AmountIngredientSerializer(
         many=True, required=True, source="recipe"
     )
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
+    is_favorited = serializers.BooleanField(read_only=True)
+    is_in_shopping_cart = serializers.BooleanField(read_only=True)
     image = Base64ImageField()
 
     class Meta:
@@ -106,20 +104,6 @@ class RecipesListSerializer(serializers.ModelSerializer):
             "text",
             "cooking_time",
         )
-
-    def get_is_favorited(self, obj):
-        request = self.context.get("request")
-        if request is None or request.user.is_anonymous:
-            return False
-        user = request.user
-        return FavoriteRecipe.objects.filter(user=user, recipe=obj).exists()
-
-    def get_is_in_shopping_cart(self, obj):
-        request = self.context.get("request")
-        if request is None or request.user.is_anonymous:
-            return False
-        user = request.user
-        return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
 
 
 class RecipesCreateSerializer(serializers.ModelSerializer):
@@ -145,7 +129,7 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients = validated_data.pop("ingredients")
         tags = validated_data.pop("tags")
-        recipe = Recipe.objects.create(**validated_data)
+        recipe = super().create(validated_data)
         recipe.tags.set(tags)
         self.create_amount_ingredients(ingredients, recipe)
         return recipe

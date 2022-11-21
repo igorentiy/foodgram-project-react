@@ -9,6 +9,7 @@ djangorestframework-simplejwt==4.8.0
 djoser==2.1.0
 drf_base64==2.0
 flake8==5.0.4
+gunicorn==20.1.0
 isort==5.10.1
 mypy==0.971
 mypy-extensions==0.4.3

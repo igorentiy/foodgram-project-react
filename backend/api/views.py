@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 from django.db.models import Sum
+from django.db.models.expressions import Exists, OuterRef, Value
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
@@ -66,9 +68,8 @@ class UsersViewSet(UserViewSet):
         author = get_object_or_404(User, id=id)
         if request.method == "POST":
             if request.user.id == author.id:
-                return Response(
-                    {"errors": "Вы не можете подписаться на свой аккаунт"},
-                    status=status.HTTP_400_BAD_REQUEST,
+                raise ValidationError(
+                    "Вы не можете подписаться на свой аккаунт"
                 )
             else:
                 serializer = FollowSerializer(
@@ -102,6 +103,43 @@ class RecipesViewSet(viewsets.ModelViewSet):
         if self.request.method in SAFE_METHODS:
             return RecipesListSerializer
         return RecipesCreateSerializer
+
+    def get_queryset(self):
+        return (
+            Recipe.objects.annotate(
+                is_favorited=Exists(
+                    FavoriteRecipe.objects.filter(
+                        user=self.request.user, recipe=OuterRef("id")
+                    )
+                ),
+                is_in_shopping_cart=Exists(
+                    ShoppingCart.objects.filter(
+                        user=self.request.user, recipe=OuterRef("id")
+                    )
+                ),
+            )
+            .select_related("author")
+            .prefetch_related(
+                "tags",
+                "ingredients",
+                "recipe",
+                "shopping_cart_recipe",
+                "favorite_recipe",
+            )
+            if self.request.user.is_authenticated
+            else Recipe.objects.annotate(
+                is_in_shopping_cart=Value(False),
+                is_favorited=Value(False),
+            )
+            .select_related("author")
+            .prefetch_related(
+                "tags",
+                "ingredients",
+                "recipe",
+                "shopping_cart_recipe",
+                "favorite_recipe",
+            )
+        )
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
