@@ -79,7 +79,7 @@ class UsersViewSet(UserViewSet):
                 return Response(
                     serializer.data, status=status.HTTP_201_CREATED
                 )
-        elif request.method == "DELETE":
+        if request.method == "DELETE":
             if Follow.objects.filter(
                 user=request.user, author=author
             ).exists():
@@ -158,7 +158,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 user=self.request.user, recipe=recipe
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif request.method == "DELETE":
+        if request.method == "DELETE":
             if FavoriteRecipe.objects.filter(
                 user=self.request.user, recipe=recipe
             ).exists():
@@ -183,7 +183,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
             serializer = FavoriteOrShoppingRecipeSerializer(recipe)
             ShoppingCart.objects.create(user=self.request.user, recipe=recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif request.method == "DELETE":
+        if request.method == "DELETE":
             if ShoppingCart.objects.filter(
                 user=self.request.user, recipe=recipe
             ).exists():
