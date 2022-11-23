@@ -12,8 +12,9 @@ services:
     image: igorentiy91/foodgram_backend:latest
     restart: always
     volumes:
-      - static:/app/static/
-      - media:/app/media/
+      - data_value:/code/data/
+      - static_value:/code/static/
+      - media_value:/code/media/
     depends_on:
       - db
     env_file:
@@ -31,15 +32,15 @@ services:
     volumes:
       - ./default.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
-      - static:/var/html/static
-      - media:/var/html/media
-    restart: always
+      - ./docs/:/usr/share/nginx/html/api/docs/
+      - static_value:/var/html/static/
+      - media_value:/var/html/media/
     depends_on:
       - backend
       - frontend
 
 volumes:
   postgres_data:
-  static:
-  media:
+  static_value:
+  media_value:
+  data_value:

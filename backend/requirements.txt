@@ -8,14 +8,15 @@ coreapi==2.3.3
 coreschema==0.0.4
 cryptography==37.0.4
 defusedxml==0.7.1
-Django==2.2.16
+Django==3.2.16
 django-filter==2.4.0
 django-templated-mail==1.1.1
-djangorestframework==3.12.4
+djangorestframework==3.14.0
 djangorestframework-simplejwt==4.8.0
 django-utils==0.0.2
 djoser==2.1.0
 drf-base64==2.0
+gunicorn==20.1.0
 flake8==4.0.1
 idna==3.3
 isort==5.10.1
@@ -29,7 +30,7 @@ oauthlib==3.2.0
 pathspec==0.9.0
 Pillow==9.2.0
 platformdirs==2.5.2
-psycopg2-binary==2.8.6
+psycopg2-binary==2.9.5
 pycodestyle==2.8.0
 pycparser==2.21
 pyflakes==2.4.0
