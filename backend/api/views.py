@@ -1,16 +1,15 @@
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
-from django.db.models.expressions import Exists, OuterRef, Value
+from django.db.models.expressions import Exists, OuterRef
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
-from .filters import RecipeFilter
+from .filters import IngredientFilter, RecipeFilter
 from .permissions import IsOwnerOrReadOnly
 from .serializers import (
     FavoriteOrShoppingRecipeSerializer,
@@ -35,13 +34,14 @@ from recipes.models import (
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (SearchFilter,)
-    search_fields = ("^name",)
+    pagination_class = None
+    filter_class = IngredientFilter
 
 
 class UsersViewSet(UserViewSet):
@@ -79,7 +79,7 @@ class UsersViewSet(UserViewSet):
                 return Response(
                     serializer.data, status=status.HTTP_201_CREATED
                 )
-        if request.method == "DELETE":
+        elif request.method == "DELETE":
             if Follow.objects.filter(
                 user=request.user, author=author
             ).exists():
@@ -105,8 +105,15 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return RecipesCreateSerializer
 
     def get_queryset(self):
-        return (
-            Recipe.objects.annotate(
+        qs = Recipe.objects.select_related("author").prefetch_related(
+            "tags",
+            "ingredients",
+            "recipe",
+            "shopping_cart_recipe",
+            "favorite_recipe",
+        )
+        if self.request.user.is_authenticated:
+            qs = qs.annotate(
                 is_favorited=Exists(
                     FavoriteRecipe.objects.filter(
                         user=self.request.user, recipe=OuterRef("id")
@@ -118,28 +125,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
                     )
                 ),
             )
-            .select_related("author")
-            .prefetch_related(
-                "tags",
-                "ingredients",
-                "recipe",
-                "shopping_cart_recipe",
-                "favorite_recipe",
-            )
-            if self.request.user.is_authenticated
-            else Recipe.objects.annotate(
-                is_in_shopping_cart=Value(False),
-                is_favorited=Value(False),
-            )
-            .select_related("author")
-            .prefetch_related(
-                "tags",
-                "ingredients",
-                "recipe",
-                "shopping_cart_recipe",
-                "favorite_recipe",
-            )
-        )
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -158,7 +144,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 user=self.request.user, recipe=recipe
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == "DELETE":
+        elif request.method == "DELETE":
             if FavoriteRecipe.objects.filter(
                 user=self.request.user, recipe=recipe
             ).exists():
@@ -183,7 +169,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
             serializer = FavoriteOrShoppingRecipeSerializer(recipe)
             ShoppingCart.objects.create(user=self.request.user, recipe=recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == "DELETE":
+        elif request.method == "DELETE":
             if ShoppingCart.objects.filter(
                 user=self.request.user, recipe=recipe
             ).exists():
@@ -225,4 +211,4 @@ class RecipesViewSet(viewsets.ModelViewSet):
             response[
                 "Content-Disposition"
             ] = 'attachment; filename="shopping_list.txt"'
-            return response
+        return response

@@ -41,13 +41,13 @@ jobs:
             with:
               context: backend/
               push: true
-              tags: igorentiy91/foodgram_backend:latest
+              tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
           - name: Push frontend
             uses: docker/build-push-action@v2 
             with:
               context: frontend/
               push: true
-              tags: igorentiy91/foodgram_frontend:latest
+              tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
 
   deploy:
       runs-on: ubuntu-latest
@@ -63,8 +63,8 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
             cd infra/
-            sudo docker pull igorentiy91/foodgram_backend:latest
-            sudo docker pull igorentiy91/foodgram_frontend:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
             sudo docker-compose stop
             sudo docker-compose rm backend
             sudo rm .env

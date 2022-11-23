@@ -118,6 +118,19 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ("author",)
 
+    def validate(self, data):
+        ingredients = data["ingredients"]
+        unique_set = set()
+        for ingredient_data in ingredients:
+            current_ingredient = ingredient_data["id"]
+            if current_ingredient in unique_set:
+                raise serializers.ValidationError(
+                    "В списке ингредиентов - два одинаковых значения."
+                    " Проверьте состав."
+                )
+            unique_set.add(current_ingredient)
+        return data
+
     def create_amount_ingredients(self, ingredients, recipe):
         for ingredient in ingredients:
             AmountIngredient.objects.create(
