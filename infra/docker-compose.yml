@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.8'
 services:
 
   db:
@@ -12,9 +12,9 @@ services:
     image: igorentiy91/foodgram_backend:latest
     restart: always
     volumes:
-      - data_value:/code/backend/data/
-      - static_value:/code/static/
-      - media_value:/code/media/
+      - data_value:/app/data/
+      - static_value:/app/static/
+      - media_value:/app/media/
     depends_on:
       - db
     env_file:
@@ -24,11 +24,13 @@ services:
     image: igorentiy91/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
+    depends_on:
+      - backend
 
   nginx:
     image: nginx:1.19.3
     ports:
-      - "80:80"
+      - 80:80
     volumes:
       - ./default.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
@@ -36,7 +38,6 @@ services:
       - static_value:/var/html/static/
       - media_value:/var/html/media/
     depends_on:
-      - backend
       - frontend
 
 volumes:
