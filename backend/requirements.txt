@@ -13,6 +13,7 @@ django-filter==2.4.0
 django-templated-mail==1.1.1
 djangorestframework==3.12.4
 djangorestframework-simplejwt==4.8.0
+django-utils==0.0.2
 djoser==2.1.0
 drf-base64==2.0
 flake8==4.0.1

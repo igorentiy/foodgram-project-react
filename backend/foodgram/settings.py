@@ -10,13 +10,7 @@ SECRET_KEY = SECRET_KEY = os.getenv('SECRET_KEY', default='django-insecure-xd@ao
 
 DEBUG = False
 
-ALLOWED_HOSTS = [
-    '*',
-    '51.250.88.72',
-    '127.0.0.1',
-    'localhost',
-    'web',
-]
+ALLOWED_HOSTS = ['51.250.88.72', '127.0.0.1', 'localhost', 'web']
 
 
 INSTALLED_APPS = [
@@ -78,7 +72,7 @@ DATABASES = {
         "ENGINE": os.getenv("DB_ENGINE", default="django.db.backends.postgresql"),
         "NAME": os.getenv("DB_NAME", default="postgres"),
         "USER": os.getenv("POSTGRES_USER", default="postgres"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="usyhuqese"),
         "HOST": os.getenv("DB_HOST", default="db"),
         "PORT": os.getenv("DB_PORT", default=5432),
     }
