@@ -15,7 +15,7 @@ ALLOWED_HOSTS = [
     '51.250.88.72',
     '127.0.0.1',
     'localhost',
-    'web'
+    'web',
 ]
 
 
