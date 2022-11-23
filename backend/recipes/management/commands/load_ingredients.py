@@ -1,23 +1,26 @@
-﻿from csv import DictReader
+﻿import csv
 
 from django.conf import settings
-from django.core.management import BaseCommand
+from django.core.management.base import BaseCommand
 from recipes.models import Ingredient
 
 
 class Command(BaseCommand):
-    help = "Loads ingredients from /data"
+    help = 'Загрузка ингредиентов в БД из .csv'
 
-    def handle(self, *args, **options):
+    def handle(self, **kwargs):
+        data_path = settings.BASE_DIR
         with open(
-            f"{settings.BASE_DIR}/data/ingredients.csv",
-            "r",
-            encoding="utf-8",
+            f'{data_path}/data/ingredients.csv',
+            'r',
+            encoding='UTF-8'
         ) as file:
-            reader = DictReader(file)
-            Ingredient.objects.bulk_create(
-                Ingredient(**data) for data in reader
-            )
-        self.stdout.write(
-            self.style.SUCCESS("***Ingredients were succesfully loaded***")
-        )
+            reader = csv.reader(file, delimiter=',')
+            for row in reader:
+                Ingredient.objects.get_or_create(
+                    name=row[0],
+                    measurement_unit=row[1]
+                )
+        self.stdout.write(self.style.SUCCESS(
+                          'Ингредиенты успешно загружены в БД.'
+                          ))
