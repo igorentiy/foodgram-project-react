@@ -12,7 +12,7 @@ services:
     image: igorentiy91/foodgram_backend:latest
     restart: always
     volumes:
-      - data_value:/code/data/
+      - data_value:/code/backend/data/
       - static_value:/code/static/
       - media_value:/code/media/
     depends_on:
