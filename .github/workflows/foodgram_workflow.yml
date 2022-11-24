@@ -21,6 +21,7 @@ jobs:
     - name: Test with flake8
       run: |
         python -m flake8
+
   build_and_push_to_docker_hub:
         name: Push Docker image to Docker Hub
         runs-on: ubuntu-latest
@@ -28,21 +29,21 @@ jobs:
         if: contains(github.ref, 'refs/heads/master') || contains(github.ref, 'refs/heads/main')
         steps:
           - name: Check out the repo
-            uses: actions/checkout@v2 
+            uses: actions/checkout@v3
           - name: Set up Docker Buildx
-            uses: docker/setup-buildx-action@v1 
-          - name: Login to Docker 
-            uses: docker/login-action@v1 
+            uses: docker/setup-buildx-action@v2
+          - name: Login to Docker
+            uses: docker/login-action@v2
             with:
               username: ${{ secrets.DOCKER_USERNAME }}
               password: ${{ secrets.DOCKER_PASSWORD }}
-          - name: Push to Docker Hub
+          - name: Push backend to Docker Hub
             uses: docker/build-push-action@v2 
             with:
               context: backend/
               push: true
               tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
-          - name: Push frontend
+          - name: Push frontend to Docker Hub
             uses: docker/build-push-action@v2 
             with:
               context: frontend/
@@ -77,6 +78,9 @@ jobs:
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             sudo docker-compose up -d
             sudo docker image prune -a
+            sudo docker-compose exec -T backend python manage.py migrate
+            sudo docker-compose exec -T backend python manage.py collectstatic --no-input
+
   send_message:
     runs-on: ubuntu-latest
     needs: deploy
