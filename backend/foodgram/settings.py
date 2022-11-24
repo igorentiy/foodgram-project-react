@@ -10,7 +10,7 @@ SECRET_KEY = SECRET_KEY = os.getenv('SECRET_KEY', default='django-insecure-xd@ao
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['51.250.88.72', '127.0.0.1', 'localhost', 'web']
+ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
@@ -59,13 +59,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, "db.sqlite3")
-#     }
-# }
 
 DATABASES = {
     "default": {
@@ -121,7 +114,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    "DEFAULT_FILTER_BACKENDS": [
+    'DEFAULT_FILTER_BACKENDS': [
         "django_filters.rest_framework.DjangoFilterBackend",
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -146,6 +139,6 @@ DJOSER = {
     },
 }
 
-AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = 'users.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
