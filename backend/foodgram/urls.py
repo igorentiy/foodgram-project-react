@@ -7,5 +7,5 @@ urlpatterns = [
     path('api/', include('api.urls', namespace='api')),
     path('redoc/',
          TemplateView.as_view(template_name='redoc.html'),
-         name='redoc'), 
-]
+         name='redoc'),
+    ]
