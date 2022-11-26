@@ -1,5 +1,5 @@
 # FoodGram
-![https://github.com/igorentiy](https://img.shields.io/badge/Developed%20by-igorentiy-blue)
+![https://github.com/igorentiy91](https://img.shields.io/badge/Developed%20by-igorentiy91-blue)
 ![foodgram-project-react Workflow ](https://github.com/igorentiy/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg?branch=master&event=push)
 
 ## Описание проекта Foodgram
@@ -74,12 +74,12 @@ touch .env
 - Заполнить в настройках репозитория секреты .env
 
 ```python
-DB_ENGINE='django.db.backends.postgresql'
-DB_NAME=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-DB_HOST=db
-DB_PORT='5432'
+DB_ENGINE="ваш тип модуля управления БД"
+DB_NAME="имя БД"
+POSTGRES_USER="имя пользователя БД"
+POSTGRES_PASSWORD="пароль пользователя БД"
+DB_HOST="хост БД, напимер localhost или db"
+DB_PORT="5432"
 ```
 
 Для доступа к контейнеру выполните следующие команды:
