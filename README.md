@@ -1,6 +1,6 @@
 # FoodGram
 ![https://github.com/igorentiy91](https://img.shields.io/badge/Developed%20by-igorentiy91-blue)
-![Yamdb Workflow Status](https://github.com/igorentiy91/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg?branch=master&event=push)
+![Yamdb Workflow Status](https://github.com/igorentiy91/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
 ## Описание проекта Foodgram
 «Продуктовый помощник»: приложение, в котором пользователи публикуют рецепты, могут подписываться на публикации других авторов и добавлять рецепты в избранное. Сервис «Список покупок» позволит пользователю создавать список продуктов, которые нужно купить для приготовления выбранных блюд.
