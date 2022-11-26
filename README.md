@@ -129,10 +129,6 @@ sudo docker-compose exec backend python manage.py collectstatic --no-input
 ```
 
 Дополнительно можно наполнить базу данных ингредиентами и тэгами:
-
 ```
-sudo docker-compose exec backend python manage.py load_tags
-```
-```
-sudo docker-compose exec backend python manage.py load_ingredients
+sudo docker-compose exec backend python manage.py load_ingr
 ```
