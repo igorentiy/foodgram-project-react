@@ -63,13 +63,13 @@ class CustomUserViewSet(UserViewSet):
     def subscribe(self, request, id):
         user = request.user
         author = get_object_or_404(User, id=id)
-        change_subscription = Follow.objects.filter(
+        subscription = Follow.objects.filter(
             user=user.id, author=author.id
         )
         if user == author:
             return Response('На себя подписываться нельзя!',
                             status=status.HTTP_400_BAD_REQUEST)
-        if change_subscription.exists():
+        if subscription.exists():
             return Response(f'Вы уже подписаны на {author}',
                             status=status.HTTP_400_BAD_REQUEST)
         subscribe = Follow.objects.create(
