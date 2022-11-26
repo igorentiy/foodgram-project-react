@@ -57,7 +57,7 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=('post',),
         permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, id):
@@ -66,26 +66,30 @@ class CustomUserViewSet(UserViewSet):
         change_subscription = Follow.objects.filter(
             user=user.id, author=author.id
         )
-        if request.method == 'POST':
-            if user == author:
-                return Response('На себя подписываться нельзя!',
-                                status=status.HTTP_400_BAD_REQUEST)
-            if change_subscription.exists():
-                return Response(f'Вы уже подписаны на {author}',
-                                status=status.HTTP_400_BAD_REQUEST)
-            subscribe = Follow.objects.create(
-                user=user,
-                author=author
-            )
-            subscribe.save()
-            return Response(f'Вы подписались на {author}',
-                            status=status.HTTP_201_CREATED)
+        if user == author:
+            return Response('На себя подписываться нельзя!',
+                            status=status.HTTP_400_BAD_REQUEST)
         if change_subscription.exists():
-            change_subscription.delete()
-            return Response(f'Вы больше не подписаны на {author}',
-                            status=status.HTTP_204_NO_CONTENT)
-        return Response(f'Вы не подписаны на {author}',
-                        status=status.HTTP_400_BAD_REQUEST)
+            return Response(f'Вы уже подписаны на {author}',
+                            status=status.HTTP_400_BAD_REQUEST)
+        subscribe = Follow.objects.create(
+            user=user,
+            author=author
+        )
+        subscribe.save()
+        return Response(f'Вы подписались на {author}',
+                        status=status.HTTP_201_CREATED)
+    
+    @subscribe.mapping.delete
+    def delete_subscribe(self, request, id):
+        user = request.user
+        author = get_object_or_404(User, id=id)
+        change_subscription = Follow.objects.filter(
+            user=user.id, author=author.id
+        )
+        change_subscription.delete()
+        return Response(f'Вы больше не подписаны на {author}',
+                        status=status.HTTP_204_NO_CONTENT)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
