@@ -79,7 +79,7 @@ class CustomUserViewSet(UserViewSet):
         subscribe.save()
         return Response(f'Вы подписались на {author}',
                         status=status.HTTP_201_CREATED)
-    
+
     @subscribe.mapping.delete
     def delete_subscribe(self, request, id):
         user = request.user
